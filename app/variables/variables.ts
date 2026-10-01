@@ -1,5 +1,64 @@
 type BrowserArgs = `--${string}`;
 
+interface OlxAttributeConfig {
+  code: string;
+  value?: string;
+  values?: string[];
+}
+
+interface OlxConfig {
+  /** Хост OLX, например https://www.olx.uz */
+  baseUrl: string;
+  clientId: string;
+  clientSecret: string;
+  scope: string;
+  /** Путь колбэка OAuth на локальном сервере (config.server) */
+  redirectPath: string;
+  tokenFileName: string;
+  stateFileName: string;
+  reportFileName: string;
+  previewFileName: string;
+  advertiserType: "private" | "business";
+  /** Код валюты OLX: UZS или UYE (у.е.) — список: bun run olx currencies */
+  currency: string;
+  negotiable: boolean;
+  contact: {
+    name: string;
+    phone?: string;
+  };
+  location: {
+    cityId: number;
+    districtId?: number;
+  };
+  maxImages: number;
+  /** Добавляется в конец описания каждого объявления */
+  descriptionFooter: string;
+  /** slug категории WooCommerce -> id категории OLX */
+  categoryMap: Record<string, number>;
+  /** Категория OLX, если ни одна категория товара не найдена в categoryMap */
+  defaultCategoryId: number | null;
+  /** Подбирать категорию OLX по названию товара, если её нет в categoryMap */
+  useCategorySuggestion: boolean;
+  /** id категории OLX -> атрибуты по умолчанию ("*" — для всех категорий) */
+  attributes: Record<string, OlxAttributeConfig[]>;
+  /** Снимать с публикации объявления товаров, которые пропали из магазина */
+  deactivateMissing: boolean;
+  requestDelay: {
+    min: number;
+    max: number;
+  };
+}
+
+interface WooCommerceConfig {
+  /** Адрес сайта, например https://shop.uz */
+  url: string;
+  consumerKey: string;
+  consumerSecret: string;
+  perPage: number;
+  /** Выгружать товары, которых нет в наличии */
+  includeOutOfStock: boolean;
+}
+
 interface Variables<T> {
   url: T;
   ResultFileName: string;
@@ -11,6 +70,8 @@ interface Variables<T> {
     host: string;
     port: number;
   };
+  olx: OlxConfig;
+  woocommerce: WooCommerceConfig;
   chunks: {
     ai: {
       timeout: number;
@@ -42,6 +103,44 @@ class Config<T> implements Variables<T> {
     server: {
       host: "localhost",
       port: 3000,
+    },
+    olx: {
+      baseUrl: "https://www.olx.uz",
+      clientId: "",
+      clientSecret: "",
+      scope: "v2 read write",
+      redirectPath: "/olx/callback",
+      tokenFileName: "olx_token.json",
+      stateFileName: "olx_export_state.json",
+      reportFileName: "olx_export_report.json",
+      previewFileName: "olx_export_preview.json",
+      advertiserType: "business",
+      currency: "UZS",
+      negotiable: false,
+      contact: {
+        name: "",
+      },
+      location: {
+        cityId: 0,
+      },
+      maxImages: 8,
+      descriptionFooter: "",
+      categoryMap: {},
+      defaultCategoryId: null,
+      useCategorySuggestion: false,
+      attributes: {},
+      deactivateMissing: true,
+      requestDelay: {
+        min: 500,
+        max: 1500,
+      },
+    },
+    woocommerce: {
+      url: "",
+      consumerKey: "",
+      consumerSecret: "",
+      perPage: 100,
+      includeOutOfStock: false,
     },
     chunks: {
       ai: {
@@ -89,6 +188,14 @@ class Config<T> implements Variables<T> {
     return this.config.server;
   }
 
+  get olx(): OlxConfig {
+    return this.config.olx;
+  }
+
+  get woocommerce(): WooCommerceConfig {
+    return this.config.woocommerce;
+  }
+
   get chunks(): Variables<T>["chunks"] {
     return this.config.chunks;
   }
@@ -122,4 +229,10 @@ const defaultConfig = new Config();
 export default defaultConfig;
 
 export { Config, defaultConfig };
-export type { BrowserArgs, Variables };
+export type {
+  BrowserArgs,
+  OlxAttributeConfig,
+  OlxConfig,
+  Variables,
+  WooCommerceConfig,
+};

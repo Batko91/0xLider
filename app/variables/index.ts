@@ -8,6 +8,51 @@ const config = new Config({
     host: "localhost",
     port: 3000,
   },
+  // Выгрузка товаров WooCommerce -> OLX (bun run olx ...). Ключи берутся из .env
+  olx: {
+    baseUrl: process.env.OLX_BASE_URL || "https://www.olx.uz",
+    clientId: process.env.OLX_CLIENT_ID || "",
+    clientSecret: process.env.OLX_CLIENT_SECRET || "",
+    scope: "v2 read write",
+    redirectPath: "/olx/callback",
+    tokenFileName: "olx_token.json",
+    stateFileName: "olx_export_state.json",
+    reportFileName: "olx_export_report.json",
+    previewFileName: "olx_export_preview.json",
+    advertiserType: "business",
+    currency: "UZS", // UZS или UYE (у.е.)
+    negotiable: false,
+    contact: {
+      name: process.env.OLX_CONTACT_NAME || "",
+      phone: process.env.OLX_CONTACT_PHONE || undefined,
+    },
+    location: {
+      cityId: Number(process.env.OLX_CITY_ID) || 0, // bun run olx cities Ташкент
+      districtId: Number(process.env.OLX_DISTRICT_ID) || undefined,
+    },
+    maxImages: 8,
+    descriptionFooter: "",
+    // slug категории WooCommerce -> id категории OLX (bun run olx categories)
+    categoryMap: {},
+    defaultCategoryId: null,
+    useCategorySuggestion: true,
+    // id категории OLX -> атрибуты; "*" применяется ко всем категориям
+    attributes: {
+      "*": [{ code: "state", value: "new" }],
+    },
+    deactivateMissing: true,
+    requestDelay: {
+      min: 500,
+      max: 1500,
+    },
+  },
+  woocommerce: {
+    url: process.env.WC_URL || "",
+    consumerKey: process.env.WC_CONSUMER_KEY || "",
+    consumerSecret: process.env.WC_CONSUMER_SECRET || "",
+    perPage: 100,
+    includeOutOfStock: false,
+  },
   browser: {
     headless: true,
   },

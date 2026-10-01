@@ -9,7 +9,10 @@
     "typescript": "^5.8.2"
   },
   "scripts": {
-    "start": "bun run app/index.ts"
+    "start": "bun run app/index.ts",
+    "olx": "bun run app/olx.ts",
+    "olx:preview": "bun run app/olx.ts export --dry-run",
+    "olx:export": "bun run app/olx.ts export"
   },
   "dependencies": {
     "@langchain/ollama": "^0.2.0",
